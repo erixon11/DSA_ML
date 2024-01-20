@@ -19,7 +19,7 @@ class topoSort(nx.DiGraph):
         """ Рекрусия для сортировки, не вызывать на прямую """
         node_list.remove(v) #отмечаем вершину как пройденную (удаляем ее из общего списка вершин
         for i in self.d[v]: #повторяем для каждой вершины для который мы являлись in_degree ->
-            if i in node_list:
+            if i in node_list: # если вершина не отмечена -
                 self.topological_sort_r(i, node_list, stack) # рекурсия для нахождения всех "дочерних узлов"
                 
         stack.append(v) #добавляем вершину в стак ( по факту лист, просто выведем его с "хвоста"
@@ -30,42 +30,47 @@ class topoSort(nx.DiGraph):
         node_list = list(self.nodes()) # все вершины для удобства "отметки" храним в списке, пройденные просто удалим из него
         stack = [] 
         for i in range(len(self.nodes())):# родительский метод nodes() возвращает список всех вершин
-            if i in node_list:
-                self.topological_sort_r(i, node_list, stack)
+            if i in node_list: # для каждой вершины повторяем нашу рекурсию
+                self.topological_sort_r(i, node_list, stack) # уходим в рекурсивную функцию
                 
-        print(stack[::-1]) #ВНИМАНИЕ! Мы только выводим результат сортировки в консоль, сам исходный граф остаётся не изменным
+        return(stack[::-1]) #ВНИМАНИЕ! Мы только выводим результат сортировки в консоль, сам исходный граф остаётся не изменным
         
     def find_path(self, start: int, end: int, current_path=[])->list:
         """ Ищем путь из точки А в точку Б """
-        current_path.append(start)
-        if start == end:
+        current_path.append(start) # добавим стартовую точку в наш путь.
+        if start == end: #если начальная точка == конечной - вернём список с этой вершиной
             return current_path
-        if start not in self.d:
+        if start not in self.d: # если стартовая точка не является частью нашего графа, вернем -1
             return [-1]
-        for vert in self.d[start]:
-            if vert not in current_path:
-                long_path = self.find_path(vert, end, current_path)
-                if long_path:
+        for vert in self.d[start]: # ищем все возможные пути из нашей стартовой точки
+            if vert not in current_path: # если мы сделали "шаг", добавим его в наш "длинный список"
+                long_path = self.find_path(vert, end, current_path) # рекурсивно повторяем всё с начала
+                if long_path: # если путь есть - вернём его.
                     return long_path
         return [-1]
                 
-        
-        
 directedGraph = topoSort()
 
+fromto = (5, 1) # кортеж с стартовой точкой поиска пути и конечной
+
 #directedGraph.add_edges_from([('E', 'C'), ('E', 'A'), ('D', 'A'), ('E', 'B'), ('C', 'D'), ('D', 'B')])
-graph_edges = [(5, 2), (5, 0), (4, 0), (4, 1), (2, 3), (3, 1)]
+graph_edges = [(5, 2), (5, 0), (4, 0), (4, 1), (2, 3), (3, 1)] # ребра нашего графа
+
 directedGraph.add_edges_from(graph_edges)
-
 directedGraph.count_verts()
-directedGraph.topological_sort()
+print("Default graph nodes: {} \nDefault graph edges: {}".format(directedGraph.nodes(), directedGraph.edges()))
+sorted_graph = directedGraph.topological_sort()
+print("Sorted graph: {}".format(sorted_graph))
+path = directedGraph.find_path(*fromto)
+print("Path {} is: {}".format(fromto, path)) 
+color_map = []
 
-directedGraphPath = topoSort()
-
-
-print(directedGraph.find_path(5, 1))
-
-
-nx.draw(directedGraph, with_labels=True, font_weight='bold')
+#для более приятного восприятия, окрасим вершины на пути из точки Х в У синим цветом, а красными верщинами обозначим те, что мы не пройдём
+for node in directedGraph.nodes():
+    if node in path:
+        color_map.append('blue')
+    else: 
+        color_map.append('red') 
+        
+nx.draw(directedGraph, node_color=color_map, edge_color='green  ', with_labels=True, font_weight='bold')
 plt.show()
-
