@@ -72,5 +72,5 @@ for node in directedGraph.nodes():
     else: 
         color_map.append('red') 
         
-nx.draw(directedGraph, node_color=color_map, edge_color='green  ', with_labels=True, font_weight='bold')
+nx.draw(directedGraph, node_color=color_map, edge_color='green', with_labels=True, font_weight='bold')
 plt.show()
